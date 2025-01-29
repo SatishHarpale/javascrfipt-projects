@@ -109,6 +109,29 @@ const inputClosePin = document.querySelector(".form__input--pin");
 /////////////////////////////////////////////////
 // Functions
 
+//Format movement dates
+// const formatMovementDate = function (date) {
+const formatMovementDate = function (date, locale) {
+  const calcDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+  console.log(daysPassed);
+
+  if (daysPassed === 0) return "Today";
+  if (daysPassed === 1) return "Yesterday";
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+  // else {
+  // const day = `${date.getDate()}`.padStart(2, 0);
+  // const month = `${date.getMonth() + 1}`.padStart(2, 0); //js is 0 based
+  // const year = date.getFullYear();
+  // return `${day}/${month}/${year}`;
+  // }
+
+  // // using locale date
+  return new Intl.DateTimeFormat(locale).format(date);
+};
+
 const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = "";
 
@@ -147,7 +170,7 @@ const calcDisplayBalance = function (acc) {
   // labelBalance.textContent = `${balance}€`;
   //for implementing transfer
   acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${acc.balance}€`;
+  labelBalance.textContent = `${acc.balance.toFixed(2)}€`;
 };
 // calcDisplayBalance(account1.movements);
 
@@ -226,14 +249,31 @@ btnLogin.addEventListener("click", function (e) {
     }`;
     containerApp.style.opacity = 100;
 
-    // Create current date and time
+    // // Create current date and time
+    // const now = new Date();
+    // const day = `${now.getDate()}`.padStart(2, 0);
+    // const month = `${now.getMonth() + 1}`.padStart(2, 0); //js is 0 based
+    // const year = now.getFullYear();
+    // const hour = `${now.getHours()}`.padStart(2, 0);
+    // const min = `${now.getMinutes()}`.padStart(2, 0);
+    // labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+
+    //date using API
     const now = new Date();
-    const day = `${now.getDate()}`.padStart(2, 0);
-    const month = `${now.getMonth() + 1}`.padStart(2, 0); //js is 0 based
-    const year = now.getFullYear();
-    const hour = `${now.getHours()}`.padStart(2, 0);
-    const min = `${now.getMinutes()}`.padStart(2, 0);
-    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      day: "numeric",
+      // month: 'long',
+      month: "numeric",
+      year: "numeric",
+      // weekday: 'long',
+    };
+
+    labelDate.textContent = new Intl.DateTimeFormat(
+      currentAccount.locale,
+      options
+    ).format(now);
 
     //clear input fields
     inputLoginUsername.value = inputLoginPin.value = "";
